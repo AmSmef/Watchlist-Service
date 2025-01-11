@@ -1,0 +1,55 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - echo Installing dependencies...
+      - npm install  # Install dependencies and create node_modules folder
+
+  build:
+    commands:
+      - echo Packaging Lambda function...
+      - mkdir -p build
+      # Remove any previous files in build directory and copy only the necessary ones
+      - rm -rf build/*
+      # Copy index.js from src/ to the root directory
+      - cp src/AddToWatchlist.js . # Copy the index.js to the root directory
+      # Include node_modules in the zip package along with other files
+      - zip -r build/AddToWatchlistService.zip AddToWatchlist.js package.json package-lock.json node_modules/*  # Include node_modules contents
+      # Optionally, you can also include other files if needed
+      - echo Deploying to Lambda...
+      # Deploy the Lambda function using the AWS CLI
+      - aws lambda update-function-code --function-name AddToWatchlist --zip-file fileb://build/AddToWatchlistService.zip
+
+      - echo Packaging 2nd Lambda function...
+
+      - rm -rf build/*
+
+      - cp src/DeleteWatchlist.js .
+
+      - zip -r build/DeleteWatchlistService.zip DeleteWatchlist.js package.json package-lock.json node_modules/* 
+
+      - echo Deploying to 2nd Lambda...
+      # Deploy the Lambda function using the AWS CLI
+      - aws lambda update-function-code --function-name DeleteWatchlistLambda --zip-file fileb://build/DeleteWatchlistService.zip
+
+
+      - echo Packaging 3rd Lambda function...
+
+      - rm -rf build/*
+
+      - cp src/DisplayWatchlist.js .
+
+      - zip -r build/DisplayWatchlistService.zip DisplayWatchlist.js package.json package-lock.json node_modules/* 
+
+      - echo Deploying to 3rd Lambda...
+      # Deploy the Lambda function using the AWS CLI
+      - aws lambda update-function-code --function-name DisplayWatchListLambda --zip-file fileb://build/DisplayWatchlistService.zip
+
+artifacts:
+  files:
+    - build/AddToWatchlistService.zip
+    - build/DeleteWatchlistService.zip
+    - build/DisplayWatchlistService.zip
