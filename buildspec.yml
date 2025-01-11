@@ -48,6 +48,10 @@ phases:
       # Deploy the Lambda function using the AWS CLI
       - aws lambda update-function-code --function-name DisplayWatchListLambda --zip-file fileb://build/DisplayWatchlistService.zip
 
+      - echo syncing frontend files to to S3...
+
+      - aws s3 sync ./watchlist/ s3://devops-bucket-amsmef/frontend/watchlist/
+
 artifacts:
   files:
     - build/AddToWatchlistService.zip
